@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What The Woof?! — Dog Lineup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Oswald:wght@400;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <span class="badge">🐾 Metropolitan Canine Division</span>
+  <h1>WHAT THE WOOF?!</h1>
+  <p class="subtitle">Dog Breed Identification Unit — Case Files</p>
+  <div class="score-bar" id="score-bar">
+    <span>CORRECT: <strong id="score-correct">0</strong></span>
+    <span>ROUND: <strong id="score-round">1</strong>/10</span>
+    <span>STREAK: <strong id="score-streak">0</strong> 🔥</span>
+  </div>
+</header>
+
+<main>
+  <!-- START SCREEN -->
+  <div id="start-screen" class="screen active">
+    <div class="case-file">
+      <span class="case-file-stamp">URGENT</span>
+      <h3>📁 Case Briefing</h3>
+      <p>Detective, we need your help. <strong>10 unidentified dogs</strong> have been brought in for questioning.</p>
+      <p>Each suspect has <strong>10 seconds</strong> to be identified. Study the lineup. Choose the correct breed. Do NOT let them fool you with those puppy eyes.</p>
+      <p>They all claim to be innocent. <strong>They are not.</strong></p>
+    </div>
+    <button class="btn-next" id="btn-start">▶ OPEN CASE FILE</button>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen">
+    <div class="round-label" id="round-label">— SUSPECT #1 OF 10 —</div>
+
+    <div class="lineup-stage">
+      <div class="spotlight"></div>
+      <div class="height-ruler">
+        <span>6ft</span><span>5ft</span><span>4ft</span><span>3ft</span><span>2ft</span><span>1ft</span>
+      </div>
+      <div class="dog-frame">
+        <div class="loading-dog" id="dog-loading">
+          <div class="spinner"></div>
+          <span id="loading-text">Bringing in suspect...</span>
+        </div>
+        <div class="dog-img-wrap" id="dog-img-wrap">
+          <img id="dog-img" class="dog-img" alt="Mystery dog suspect">
+        </div>
+      </div>
+      <div class="placard" id="placard">
+        SUSPECT #1<small>METROPOLITAN CANINE DIVISION</small>
+      </div>
+    </div>
+
+    <div class="timer-wrap">
+      <span class="timer-label">Time</span>
+      <div class="timer-track"><div class="timer-fill" id="timer-fill"></div></div>
+      <div class="timer-digits" id="timer-digits">10</div>
+    </div>
+
+    <div class="choices" id="choices"></div>
+
+    <div class="verdict" id="verdict">
+      <div class="verdict-headline" id="verdict-headline"></div>
+      <div class="verdict-sub" id="verdict-sub"></div>
+    </div>
+
+    <button class="btn-next" id="btn-next" disabled>NEXT SUSPECT →</button>
+  </div>
+
+  <!-- FINAL SCREEN -->
+  <div id="final-screen" class="screen">
+    <div class="final-closed">CASE CLOSED</div>
+    <div class="final-stamp">
+      <div class="final-rank" id="final-rank">DETECTIVE GRADE</div>
+      <div class="final-score-big" id="final-score-big">0/10</div>
+      <div class="final-score-sub">BREEDS CORRECTLY IDENTIFIED</div>
+    </div>
+    <p class="final-verdict-text" id="final-verdict-text"></p>
+    <button class="btn-next" id="btn-restart">🔄 NEW CASE FILE</button>
+  </div>
+</main>
+
+<script type="module" src="js/game.js"></script>
+</body>
+</html>
