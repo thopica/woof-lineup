@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What The Woof?! — Dog Lineup</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Oswald:wght@400;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --yellow: #f0c040;
+    --red: #c0392b;
+    --dark: #1a1510;
+    --mid: #2e2720;
+    --wood: #4a3728;
+    --paper: #e8dfc8;
+    --ink: #1c1410;
+    --green: #2d5a27;
+    --green-light: #4a8a42;
+    --amber: #d4860a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--cream);
+    font-family: 'Courier Prime', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px),
+      radial-gradient(ellipse at 50% 0%, #2a2018 0%, #1a1510 60%, #0d0c0a 100%);
+  }
+
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      to bottom, transparent 0px, transparent 3px,
+      rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  header {
+    text-align: center;
+    padding: 28px 20px 20px;
+    border-bottom: 3px double rgba(240,192,64,0.4);
+  }
+
+  .badge {
+    font-family: 'Special Elite', cursive;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--amber);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(2.2rem, 7vw, 4rem);
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--yellow);
+    text-shadow: 3px 3px 0 #8b6914, 6px 6px 12px rgba(0,0,0,0.8);
+    line-height: 1;
+  }
+
+  .subtitle {
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: rgba(245,240,232,0.45);
+    margin-top: 8px;
+    text-transform: uppercase;
+  }
+
+  .score-bar {
+    display: none;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 16px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: rgba(245,240,232,0.6);
+  }
+  .score-bar.visible { display: flex; }
+  .score-bar span strong { color: var(--yellow); font-size: 18px; }
+
+  main { max-width: 760px; margin: 0 auto; padding: 20px 16px 40px; }
+
+  .round-label {
+    text-align: center;
+    font-family: 'Special Elite', cursive;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: rgba(240,192,64,0.6);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .lineup-stage {
+    position: relative;
+    background: #111008;
+    border: 2px solid #3a3020;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 60px rgba(0,0,0,0.5);
+  }
+
+  .lineup-stage::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(90deg, transparent 0, transparent 60px, rgba(255,255,255,0.015) 60px, rgba(255,255,255,0.015) 61px),
+      repeating-linear-gradient(0deg, transparent 0, transparent 60px, rgba(255,255,255,0.015) 60px, rgba(255,255,255,0.015) 61px);
+    z-index: 0;
+  }
+
+  .height-ruler {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    width: 36px;
+    background: #1e1c14;
+    border-right: 1px solid #3a3020;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 8px 0;
+  }
+
+  .height-ruler span {
+    font-size: 9px;
+    color: rgba(240,192,64,0.4);
+    text-align: center;
+    font-family: 'Courier Prime', monospace;
+    display: block;
+    line-height: 1;
+  }
+
+  .spotlight {
+    position: absolute;
+    top: -60px; left: 50%;
+    transform: translateX(-50%);
+    width: 300px; height: 300px;
+    background: radial-gradient(ellipse at 50% 20%, rgba(255,240,180,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .dog-frame {
+    position: relative;
+    z-index: 3;
+    padding: 28px 28px 0 60px;
+    min-height: 260px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .loading-dog {
+    width: 100%;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid rgba(240,192,64,0.15);
+    border-top-color: var(--amber);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-dog span {
+    font-family: 'Special Elite', cursive;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(240,192,64,0.45);
+    text-transform: uppercase;
+  }
+
+  .dog-img-wrap {
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+    min-height: 220px;
+  }
+  .dog-img-wrap.visible { display: flex; }
+
+  .dog-img {
+    display: block;
+    max-height: 220px;
+    max-width: 100%;
+    width: auto;
+    object-fit: contain;
+    filter: sepia(20%) contrast(1.05);
+  }
+
+  .placard {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Oswald', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-align: center;
+    padding: 6px 20px 8px;
+    border-top: 3px solid #999;
+    display: block;
+    width: 100%;
+    box-shadow: 0 -2px 6px rgba(0,0,0,0.5);
+    position: relative;
+    z-index: 3;
+  }
+
+  .placard small {
+    display: block;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #666;
+    font-weight: 400;
+    margin-top: 1px;
+  }
+
+  .timer-wrap {
+    background: #0f0e09;
+    border: 1px solid #2a2418;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .timer-label {
+    font-family: 'Special Elite', cursive;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: rgba(240,192,64,0.5);
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+
+  .timer-track {
+    flex: 1;
+    height: 6px;
+    background: #2a2418;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .timer-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green-light), var(--yellow));
+    border-radius: 3px;
+    width: 100%;
+    transition: background 0.5s;
+  }
+  .timer-fill.warning { background: linear-gradient(90deg, var(--amber), var(--red)); }
+
+  .timer-digits {
+    font-family: 'Oswald', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--yellow);
+    width: 32px;
+    text-align: right;
+    line-height: 1;
+  }
+
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .choice-btn {
+    background: var(--mid);
+    border: 2px solid #3a3020;
+    color: var(--cream);
+    font-family: 'Courier Prime', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 14px 16px;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+  }
+
+  .choice-btn .opt-letter {
+    font-family: 'Oswald', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--amber);
+    min-width: 22px;
+    flex-shrink: 0;
+  }
+
+  .choice-btn:hover:not(:disabled) {
+    background: #3a3020;
+    border-color: var(--amber);
+    transform: translateY(-1px);
+  }
+
+  .choice-btn.correct {
+    background: #1a3a18 !important;
+    border-color: var(--green-light) !important;
+    color: #a0e898 !important;
+  }
+
+  .choice-btn.wrong {
+    background: #3a1010 !important;
+    border-color: var(--red) !important;
+    color: #e88888 !important;
+    animation: shake 0.35s ease;
+  }
+
+  .choice-btn.reveal-correct {
+    background: #1a3a18 !important;
+    border-color: var(--green-light) !important;
+    color: #a0e898 !important;
+  }
+
+  .choice-btn:disabled { cursor: default; }
+
+  @keyframes shake {
+    0%   { transform: translateX(0); }
+    20%  { transform: translateX(-5px); }
+    40%  { transform: translateX(5px); }
+    60%  { transform: translateX(-4px); }
+    80%  { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+  }
+
+  .verdict {
+    text-align: center;
+    padding: 16px;
+    margin-bottom: 20px;
+    border: 2px solid transparent;
+    border-radius: 2px;
+    display: none;
+    animation: slideDown 0.3s ease;
+  }
+  .verdict.show       { display: block; }
+  .verdict.correct-v  { background: #0e2410; border-color: var(--green-light); }
+  .verdict.wrong-v    { background: #2a0a0a; border-color: var(--red); }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .verdict-headline {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .verdict.correct-v .verdict-headline { color: #7de870; }
+  .verdict.wrong-v   .verdict-headline { color: #e87070; }
+
+  .verdict-sub {
+    font-size: 12px;
+    margin-top: 6px;
+    color: rgba(245,240,232,0.6);
+    letter-spacing: 1px;
+  }
+
+  .btn-next {
+    display: block;
+    width: 100%;
+    background: var(--wood);
+    border: 2px solid var(--amber);
+    color: var(--yellow);
+    font-family: 'Oswald', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    padding: 16px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-next:hover:not(:disabled) { background: #5a4530; transform: translateY(-1px); }
+  .btn-next:disabled { opacity: 0.35; cursor: default; transform: none; }
+
+  /* screens */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* start */
+  #start-screen { text-align: center; animation: fadeIn 0.5s ease; }
+
+  .case-file {
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid #c8b890;
+    padding: 28px 28px 24px;
+    margin: 20px 0;
+    position: relative;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+    text-align: left;
+  }
+
+  .case-file-stamp {
+    position: absolute;
+    top: 16px; right: 20px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--red);
+    border: 4px solid var(--red);
+    padding: 2px 10px;
+    letter-spacing: 3px;
+    transform: rotate(8deg);
+    opacity: 0.7;
+  }
+
+  .case-file h3 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: #888;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .case-file p {
+    font-family: 'Courier Prime', monospace;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.8;
+    margin-bottom: 10px;
+  }
+  .case-file p strong { color: var(--ink); }
+
+  /* final */
+  #final-screen { display: none; text-align: center; }
+  #final-screen.active.show { display: block; animation: fadeIn 0.5s ease; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .final-closed {
+    display: inline-block;
+    margin-top: 16px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--red);
+    border: 4px solid var(--red);
+    padding: 4px 14px;
+    letter-spacing: 3px;
+  }
+
+  .final-stamp {
+    display: inline-block;
+    border: 6px double var(--yellow);
+    padding: 24px 40px;
+    margin: 20px 0 28px;
+    position: relative;
+    transform: rotate(-2deg);
+  }
+  .final-stamp::before {
+    content: '';
+    position: absolute; inset: 4px;
+    border: 1px solid rgba(240,192,64,0.3);
+    pointer-events: none;
+  }
+
+  .final-rank {
+    font-family: 'Special Elite', cursive;
+    font-size: 12px;
+    letter-spacing: 4px;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .final-score-big {
+    font-family: 'Oswald', sans-serif;
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--yellow);
+    text-shadow: 4px 4px 0 #8b6914;
+    line-height: 1;
+  }
+
+  .final-score-sub {
+    font-size: 13px;
+    color: rgba(245,240,232,0.5);
+    letter-spacing: 2px;
+    margin-top: 6px;
+  }
+
+  .final-verdict-text {
+    font-family: 'Special Elite', cursive;
+    font-size: 1.1rem;
+    color: var(--cream);
+    margin: 20px 0;
+    padding: 0 20px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 480px) {
+    .choices { grid-template-columns: 1fr; }
+    .final-score-big { font-size: 3.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="badge">🐾 Metropolitan Canine Division</span>
+  <h1>WHAT THE WOOF?!</h1>
+  <p class="subtitle">Dog Breed Identification Unit — Case Files</p>
+  <div class="score-bar" id="score-bar">
+    <span>CORRECT: <strong id="score-correct">0</strong></span>
+    <span>ROUND: <strong id="score-round">1</strong>/10</span>
+    <span>STREAK: <strong id="score-streak">0</strong> 🔥</span>
+  </div>
+</header>
+
+<main>
+  <!-- START -->
+  <div id="start-screen" class="screen active">
+    <div class="case-file">
+      <span class="case-file-stamp">URGENT</span>
+      <h3>📁 Case Briefing</h3>
+      <p>Detective, we need your help. <strong>10 unidentified dogs</strong> have been brought in for questioning.</p>
+      <p>Each suspect has <strong>10 seconds</strong> to be identified. Study the lineup. Choose the correct breed. Do NOT let them fool you with those puppy eyes.</p>
+      <p>They all claim to be innocent. <strong>They are not.</strong></p>
+    </div>
+    <button class="btn-next" id="btn-start">▶ OPEN CASE FILE</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="game-screen" class="screen">
+    <div class="round-label" id="round-label">— SUSPECT #1 OF 10 —</div>
+
+    <div class="lineup-stage">
+      <div class="spotlight"></div>
+      <div class="height-ruler">
+        <span>6ft</span><span>5ft</span><span>4ft</span><span>3ft</span><span>2ft</span><span>1ft</span>
+      </div>
+      <div class="dog-frame">
+        <div class="loading-dog" id="dog-loading">
+          <div class="spinner"></div>
+          <span id="loading-text">Bringing in suspect...</span>
+        </div>
+        <div class="dog-img-wrap" id="dog-img-wrap">
+          <img id="dog-img" class="dog-img" alt="Mystery dog suspect" />
+        </div>
+      </div>
+      <div class="placard" id="placard">
+        SUSPECT #1<small>METROPOLITAN CANINE DIVISION</small>
+      </div>
+    </div>
+
+    <div class="timer-wrap">
+      <span class="timer-label">Time</span>
+      <div class="timer-track"><div class="timer-fill" id="timer-fill"></div></div>
+      <div class="timer-digits" id="timer-digits">10</div>
+    </div>
+
+    <div class="choices" id="choices"></div>
+
+    <div class="verdict" id="verdict">
+      <div class="verdict-headline" id="verdict-headline"></div>
+      <div class="verdict-sub" id="verdict-sub"></div>
+    </div>
+
+    <button class="btn-next" id="btn-next" disabled>NEXT SUSPECT →</button>
+  </div>
+
+  <!-- FINAL -->
+  <div id="final-screen" class="screen">
+    <div class="final-closed">CASE CLOSED</div>
+    <div class="final-stamp">
+      <div class="final-rank" id="final-rank">DETECTIVE GRADE</div>
+      <div class="final-score-big" id="final-score-big">0/10</div>
+      <div class="final-score-sub">BREEDS CORRECTLY IDENTIFIED</div>
+    </div>
+    <p class="final-verdict-text" id="final-verdict-text"></p>
+    <button class="btn-next" id="btn-restart">🔄 NEW CASE FILE</button>
+  </div>
+</main>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────
+const API_BASE     = 'https://dog.ceo/api';
+const TOTAL_ROUNDS = 10;
+const ROUND_TIME   = 10;   // seconds
+const LETTERS      = ['A','B','C','D'];
+
+// ── STATE ─────────────────────────────────────────────────────
+let allBreeds    = [];
+let currentRound = 0;
+let score        = 0;
+let streak       = 0;
+let answered     = false;
+let timerHandle  = null;
+let timerStart   = 0;          // timestamp from Date.now()
+let correctBreed = '';
+
+// ── SCREENS ───────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── BREED HELPERS ─────────────────────────────────────────────
+function flattenBreeds(obj) {
+  const list = [];
+  for (const [breed, subs] of Object.entries(obj)) {
+    if (subs.length === 0) { list.push(breed); }
+    else { subs.forEach(sub => list.push(`${sub} ${breed}`)); }
+  }
+  return list;
+}
+
+// "afghan hound" → "hound/afghan" | "labrador" → "labrador"
+function toApiPath(breed) {
+  const p = breed.trim().split(' ');
+  return p.length === 2 ? `${p[1]}/${p[0]}` : p[0];
+}
+
+function formatBreed(name) {
+  return name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+function pick(arr, n) { return shuffle(arr).slice(0, n); }
+function rand(arr)    { return arr[Math.floor(Math.random() * arr.length)]; }
+
+// ── API ───────────────────────────────────────────────────────
+async function fetchBreeds() {
+  const r = await fetch(`${API_BASE}/breeds/list/all`);
+  const d = await r.json();
+  return flattenBreeds(d.message);
+}
+
+async function fetchImage(breed) {
+  const r = await fetch(`${API_BASE}/breed/${toApiPath(breed)}/images/random`);
+  const d = await r.json();
+  if (d.status !== 'success') throw new Error('no image');
+  return d.message;
+}
+
+// ── TIMER ─────────────────────────────────────────────────────
+// Uses Date.now() delta — immune to floating-point drift
+function startTimer() {
+  stopTimer();
+  timerStart = Date.now();
+  setTimerDisplay(ROUND_TIME);
+
+  timerHandle = setInterval(() => {
+    const elapsed   = (Date.now() - timerStart) / 1000;
+    const remaining = ROUND_TIME - elapsed;
+
+    if (remaining <= 0) {
+      setTimerDisplay(0);
+      stopTimer();
+      if (!answered) onTimeUp();
+    } else {
+      setTimerDisplay(remaining);
+    }
+  }, 80);
+}
+
+function stopTimer() {
+  if (timerHandle) { clearInterval(timerHandle); timerHandle = null; }
+}
+
+function setTimerDisplay(remaining) {
+  const pct = Math.max(0, remaining / ROUND_TIME) * 100;
+  document.getElementById('timer-fill').style.width = pct + '%';
+  document.getElementById('timer-fill').className   =
+    'timer-fill' + (remaining < 4 && remaining > 0 ? ' warning' : '');
+  document.getElementById('timer-digits').textContent = Math.ceil(Math.max(0, remaining));
+}
+
+// ── SCORE BAR ─────────────────────────────────────────────────
+function updateScoreBar() {
+  document.getElementById('score-correct').textContent = score;
+  document.getElementById('score-round').textContent   = currentRound + 1;
+  document.getElementById('score-streak').textContent  = streak;
+}
+
+// ── LOAD ROUND ────────────────────────────────────────────────
+async function loadRound() {
+  answered = false;
+  stopTimer();
+  setTimerDisplay(ROUND_TIME);
+
+  document.getElementById('btn-next').disabled  = true;
+  document.getElementById('verdict').className  = 'verdict';
+  document.getElementById('choices').innerHTML  = '';
+
+  const n = currentRound + 1;
+  document.getElementById('round-label').textContent =
+    `— SUSPECT #${n} OF ${TOTAL_ROUNDS} —`;
+  document.getElementById('placard').innerHTML =
+    `SUSPECT #${n}<small>METROPOLITAN CANINE DIVISION</small>`;
+  updateScoreBar();
+
+  // Show spinner, hide dog
+  document.getElementById('dog-loading').style.display = 'flex';
+  document.getElementById('dog-img-wrap').classList.remove('visible');
+  document.getElementById('loading-text').textContent = 'Bringing in suspect...';
+
+  // Find a breed with a working image
+  let imgUrl = null;
+  const pool = pick(allBreeds, 60);
+
+  for (const breed of pool) {
+    try {
+      imgUrl       = await fetchImage(breed);
+      correctBreed = breed;
+      break;
+    } catch (_) { /* try next */ }
+  }
+
+  if (!imgUrl) {
+    // Last resort: generic random dog endpoint
+    try {
+      const r = await fetch(`${API_BASE}/breeds/image/random`);
+      const d = await r.json();
+      imgUrl       = d.message;
+      correctBreed = 'mystery dog';
+    } catch (_) {
+      document.getElementById('loading-text').textContent = '⚠ Failed to load suspect.';
+      document.getElementById('btn-next').disabled = false;
+      return;
+    }
+  }
+
+  // Build choices (correct + 3 decoys, no duplicates)
+  const decoys  = pick(allBreeds.filter(b => b !== correctBreed), 3);
+  const options = shuffle([correctBreed, ...decoys]);
+
+  // ─ FIX: attach onload/onerror BEFORE setting src ─
+  const img = document.getElementById('dog-img');
+
+  img.onload = () => {
+    document.getElementById('dog-loading').style.display = 'none';
+    document.getElementById('dog-img-wrap').classList.add('visible');
+    renderChoices(options);  // enable choices only after image shows
+    startTimer();            // start timer only after image shows
+  };
+
+  img.onerror = () => {
+    // fallback to any random dog
+    fetch(`${API_BASE}/breeds/image/random`)
+      .then(r => r.json())
+      .then(d => { img.src = d.message; })
+      .catch(() => {
+        document.getElementById('loading-text').textContent = '⚠ Suspect escaped.';
+        renderChoices(options);
+        startTimer();
+      });
+  };
+
+  img.src = imgUrl;  // set AFTER handlers are attached
+}
+
+// ── CHOICES ───────────────────────────────────────────────────
+function renderChoices(options) {
+  const el = document.getElementById('choices');
+  el.innerHTML = '';
+  options.forEach((opt, i) => {
+    const btn     = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.dataset.val = opt;
+    btn.innerHTML = `<span class="opt-letter">${LETTERS[i]}</span>${formatBreed(opt)}`;
+    btn.addEventListener('click', () => onAnswer(opt, btn));
+    el.appendChild(btn);
+  });
+}
+
+// ── ANSWER / TIME UP ──────────────────────────────────────────
+function lockAllChoices() {
+  document.querySelectorAll('.choice-btn').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.val === correctBreed) b.classList.add('reveal-correct');
+  });
+}
+
+function onAnswer(chosen, btn) {
+  if (answered) return;
+  answered = true;
+  stopTimer();
+  lockAllChoices();
+
+  const ok = chosen === correctBreed;
+  btn.classList.add(ok ? 'correct' : 'wrong');
+  if (ok) { score++; streak++; } else { streak = 0; }
+  updateScoreBar();
+  showVerdict(ok ? 'correct' : 'wrong');
+  document.getElementById('btn-next').disabled = false;
+}
+
+function onTimeUp() {
+  answered = true;
+  lockAllChoices();
+  streak = 0;
+  updateScoreBar();
+  showVerdict('timeout');
+  document.getElementById('btn-next').disabled = false;
+}
+
+// ── VERDICT ───────────────────────────────────────────────────
+const VERDICTS = {
+  correct: {
+    cls: 'correct-v',
+    headlines: ["✅ IDENTITY CONFIRMED","✅ CASE CRACKED","✅ POSITIVE ID","✅ GOTCHA!","✅ CORRECT!"],
+    sub: () => streak > 1
+      ? `It's a ${formatBreed(correctBreed)}. 🔥 ${streak} in a row!`
+      : `It's a ${formatBreed(correctBreed)}. The precinct applauds.`
+  },
+  wrong: {
+    cls: 'wrong-v',
+    headlines: ["❌ WRONG BREED","❌ MISIDENTIFIED","❌ INCORRECT","❌ NOPE","❌ YOU'VE BEEN FOOLED"],
+    sub: () => `It was a ${formatBreed(correctBreed)}. Study those files, detective.`
+  },
+  timeout: {
+    cls: 'wrong-v',
+    headlines: ["⏰ TIME'S UP, DETECTIVE","⏰ TOO SLOW!","⏰ THE SUSPECT WALKED FREE"],
+    sub: () => `It was a ${formatBreed(correctBreed)}. The dog smirks as it walks out.`
+  }
+};
+
+function showVerdict(type) {
+  const v = VERDICTS[type];
+  const el = document.getElementById('verdict');
+  el.className = `verdict ${v.cls} show`;
+  document.getElementById('verdict-headline').textContent = rand(v.headlines);
+  document.getElementById('verdict-sub').textContent      = v.sub();
+}
+
+// ── NEXT ROUND ────────────────────────────────────────────────
+async function nextRound() {
+  currentRound++;
+  if (currentRound >= TOTAL_ROUNDS) { showFinal(); return; }
+  await loadRound();
+}
+
+// ── FINAL SCREEN ──────────────────────────────────────────────
+const RANKS = [
+  [0,  2,  "CIVILIAN",             "You couldn't identify a Golden Retriever in a room full of Golden Retrievers. Consider a career change."],
+  [3,  4,  "ROOKIE",               "Some potential, but the dogs are not scared of you yet. Keep studying those case files."],
+  [5,  6,  "OFFICER",              "Respectable work. A few suspects slipped through, but the precinct is proud(ish)."],
+  [7,  8,  "DETECTIVE",            "Sharp eyes, quick instincts. The dogs are starting to worry."],
+  [9,  9,  "SENIOR DETECTIVE",     "Outstanding. One slip, but we all have bad fur days."],
+  [10, 10, "CHIEF OF THE K-9 UNIT","PERFECT SCORE. The entire canine community is trembling. You are a legend."],
+];
+
+function showFinal() {
+  stopTimer();
+  document.getElementById('score-bar').classList.remove('visible');
+  const [,, rank, txt] = RANKS.find(([lo, hi]) => score >= lo && score <= hi);
+  document.getElementById('final-rank').textContent        = `— ${rank} —`;
+  document.getElementById('final-score-big').textContent   = `${score}/10`;
+  document.getElementById('final-verdict-text').textContent = txt;
+  showScreen('final-screen');
+}
+
+// ── START / RESTART ───────────────────────────────────────────
+async function startGame() {
+  const btn      = document.getElementById('btn-start');
+  btn.disabled   = true;
+  btn.textContent = '⏳ Loading case files...';
+
+  try {
+    allBreeds = await fetchBreeds();
+  } catch (_) {
+    btn.disabled    = false;
+    btn.textContent = '⚠ Network error — Retry?';
+    return;
+  }
+
+  currentRound = 0; score = 0; streak = 0;
+  document.getElementById('score-bar').classList.add('visible');
+  showScreen('game-screen');
+  await loadRound();
+}
+
+function restartGame() {
+  stopTimer();
+  currentRound = 0; score = 0; streak = 0;
+  document.getElementById('score-bar').classList.add('visible');
+  showScreen('game-screen');
+  loadRound();
+}
+
+// ── WIRE UP ───────────────────────────────────────────────────
+document.getElementById('btn-start').addEventListener('click', startGame);
+document.getElementById('btn-next').addEventListener('click', nextRound);
+document.getElementById('btn-restart').addEventListener('click', restartGame);
+</script>
+</body>
+</html>
