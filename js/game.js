@@ -50,7 +50,7 @@ async function loadRound() {
       imgUrl       = await fetchRandomImage();
       correctBreed = 'mystery dog';
     } catch (_) {
-      showLoading('⚠ Failed to load suspect.');
+      showLoading('⚠ Could not load a dog. Try next!');
       setNextEnabled(true);
       return;
     }
@@ -74,7 +74,7 @@ async function loadRound() {
     fetchRandomImage()
       .then(url => { img.src = url; })
       .catch(() => {
-        showLoading('⚠ Suspect escaped.');
+        showLoading('⚠ Image unavailable.');
         renderChoices(options, onAnswer);
         startTimer(onTimeUp);
       });
@@ -131,16 +131,25 @@ function showFinal() {
 
 // ── Game Lifecycle ─────────────────────────────────────────────────────────
 
+function abortGame() {
+  stopTimer();
+  setScoreBarVisible(false);
+  currentRound = 0;
+  score        = 0;
+  streak       = 0;
+  showScreen('start-screen');
+}
+
 async function startGame() {
   const btn = document.getElementById('btn-start');
   btn.disabled    = true;
-  btn.textContent = '⏳ Loading case files...';
+  btn.textContent = '⏳ Loading breeds…';
 
   try {
     allBreeds = await fetchBreeds();
   } catch (_) {
     btn.disabled    = false;
-    btn.textContent = '⚠ Network error — Retry?';
+    btn.textContent = '⚠ Network error — try again';
     return;
   }
 
@@ -167,3 +176,4 @@ function restartGame() {
 document.getElementById('btn-start').addEventListener('click', startGame);
 document.getElementById('btn-next').addEventListener('click', nextRound);
 document.getElementById('btn-restart').addEventListener('click', restartGame);
+document.getElementById('btn-home').addEventListener('click', abortGame);

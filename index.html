@@ -3,63 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>What The Woof?! — Dog Lineup</title>
-  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Oswald:wght@400;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+  <title>What The Woof?!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header>
-  <span class="badge">🐾 Metropolitan Canine Division</span>
-  <h1>WHAT THE WOOF?!</h1>
-  <p class="subtitle">Dog Breed Identification Unit — Case Files</p>
+  <h1>🐾 What The Woof?!</h1>
+  <p class="subtitle">Dog breed identification challenge</p>
   <div class="score-bar" id="score-bar">
-    <span>CORRECT: <strong id="score-correct">0</strong></span>
-    <span>ROUND: <strong id="score-round">1</strong>/10</span>
-    <span>STREAK: <strong id="score-streak">0</strong> 🔥</span>
+    <span class="stat">✅ <strong id="score-correct">0</strong></span>
+    <span class="stat">Round <strong id="score-round">1</strong>/10</span>
+    <span class="stat">🔥 <strong id="score-streak">0</strong></span>
   </div>
 </header>
 
 <main>
   <!-- START SCREEN -->
   <div id="start-screen" class="screen active">
-    <div class="case-file">
-      <span class="case-file-stamp">URGENT</span>
-      <h3>📁 Case Briefing</h3>
-      <p>Detective, we need your help. <strong>10 unidentified dogs</strong> have been brought in for questioning.</p>
-      <p>Each suspect has <strong>10 seconds</strong> to be identified. Study the lineup. Choose the correct breed. Do NOT let them fool you with those puppy eyes.</p>
-      <p>They all claim to be innocent. <strong>They are not.</strong></p>
+    <div class="intro-card">
+      <h3>How to play 🐶</h3>
+      <p>You'll see <strong>10 dog photos</strong>, one at a time.</p>
+      <p>Pick the correct breed from 4 options — you have <strong>10 seconds</strong> each round.</p>
+      <p>Think you know your dogs? Let's find out!</p>
     </div>
-    <button class="btn-next" id="btn-start">▶ OPEN CASE FILE</button>
+    <button class="btn-primary" id="btn-start">Let's Go! →</button>
   </div>
 
   <!-- GAME SCREEN -->
   <div id="game-screen" class="screen">
-    <div class="round-label" id="round-label">— SUSPECT #1 OF 10 —</div>
+    <div class="game-nav">
+      <button class="btn-home" id="btn-home">← Home</button>
+      <span class="round-label" id="round-label">Dog 1 of 10</span>
+    </div>
 
-    <div class="lineup-stage">
-      <div class="spotlight"></div>
-      <div class="height-ruler">
-        <span>6ft</span><span>5ft</span><span>4ft</span><span>3ft</span><span>2ft</span><span>1ft</span>
+    <div class="dog-card">
+      <div class="loading-dog" id="dog-loading">
+        <div class="spinner"></div>
+        <span id="loading-text">Fetching your dog…</span>
       </div>
-      <div class="dog-frame">
-        <div class="loading-dog" id="dog-loading">
-          <div class="spinner"></div>
-          <span id="loading-text">Bringing in suspect...</span>
-        </div>
-        <div class="dog-img-wrap" id="dog-img-wrap">
-          <img id="dog-img" class="dog-img" alt="Mystery dog suspect">
-        </div>
+      <div class="dog-img-wrap" id="dog-img-wrap">
+        <img id="dog-img" class="dog-img" alt="Dog to identify">
       </div>
-      <div class="placard" id="placard">
-        SUSPECT #1<small>METROPOLITAN CANINE DIVISION</small>
-      </div>
+      <div class="placard" id="placard">Suspect #1</div>
     </div>
 
     <div class="timer-wrap">
-      <span class="timer-label">Time</span>
       <div class="timer-track"><div class="timer-fill" id="timer-fill"></div></div>
-      <div class="timer-digits" id="timer-digits">10</div>
+      <span class="timer-digits" id="timer-digits">10</span>
     </div>
 
     <div class="choices" id="choices"></div>
@@ -69,19 +61,19 @@
       <div class="verdict-sub" id="verdict-sub"></div>
     </div>
 
-    <button class="btn-next" id="btn-next" disabled>NEXT SUSPECT →</button>
+    <button class="btn-primary" id="btn-next" disabled>Next Dog →</button>
   </div>
 
   <!-- FINAL SCREEN -->
   <div id="final-screen" class="screen">
-    <div class="final-closed">CASE CLOSED</div>
-    <div class="final-stamp">
-      <div class="final-rank" id="final-rank">DETECTIVE GRADE</div>
+    <div class="final-card">
+      <p class="final-eyebrow">🐾</p>
+      <div class="final-rank" id="final-rank">DETECTIVE</div>
       <div class="final-score-big" id="final-score-big">0/10</div>
-      <div class="final-score-sub">BREEDS CORRECTLY IDENTIFIED</div>
+      <div class="final-score-sub">breeds identified</div>
     </div>
     <p class="final-verdict-text" id="final-verdict-text"></p>
-    <button class="btn-next" id="btn-restart">🔄 NEW CASE FILE</button>
+    <button class="btn-primary" id="btn-restart">Play Again →</button>
   </div>
 </main>
 

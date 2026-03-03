@@ -21,14 +21,12 @@ export function setScoreBarVisible(visible) {
 
 // Set the round heading and placard text.
 export function setRoundLabel(n, total) {
-  document.getElementById('round-label').textContent =
-    `— SUSPECT #${n} OF ${total} —`;
-  document.getElementById('placard').innerHTML =
-    `SUSPECT #${n}<small>METROPOLITAN CANINE DIVISION</small>`;
+  document.getElementById('round-label').textContent = `Dog ${n} of ${total}`;
+  document.getElementById('placard').textContent     = `Suspect #${n}`;
 }
 
 // Show the loading spinner and hide the dog image.
-export function showLoading(text = 'Bringing in suspect...') {
+export function showLoading(text = 'Fetching your dog…') {
   document.getElementById('loading-text').textContent = text;
   document.getElementById('dog-loading').style.display = 'flex';
   document.getElementById('dog-img-wrap').classList.remove('visible');
